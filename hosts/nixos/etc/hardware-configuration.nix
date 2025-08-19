@@ -29,15 +29,15 @@
     [ { device = "/dev/disk/by-uuid/c05b976b-fb00-42cd-b341-841923fa78f4"; }
     ];
 
-  #fileSystems."/media/storage" = {
-    #device = "/dev/disk/by-uuid/24F52C3B1DBA0C27";
-    #options = ["nofail" "x-systemd.automount" "uid=1000" "gid=1000" "dmask=007" "fmask=117"];
-  #};
+  # fileSystems."/media/storage" = {
+  #   device = "/dev/disk/by-uuid/24F52C3B1DBA0C27";
+  #   options = ["nofail" "x-systemd.automount" "uid=1000" "gid=1000" "dmask=007" "fmask=117"];
+  # };
 
-  #fileSystems."/media/ext_storage" = {
-    #device = "/dev/disk/by-uuid/F474B7AA74B76DCC";
-    #options = ["nofail" "x-systemd.automount" "uid=1000" "gid=1000" "dmask=007" "fmask=117"];
-  #};
+  # fileSystems."/media/ext_storage" = {
+  #   device = "/dev/disk/by-uuid/F474B7AA74B76DCC";
+  #   options = ["nofail" "x-systemd.automount" "uid=1000" "gid=1000" "dmask=007" "fmask=117"];
+  # };
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's

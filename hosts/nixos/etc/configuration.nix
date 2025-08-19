@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports =
@@ -15,6 +15,18 @@
   boot.loader.efi.canTouchEfiVariables = true;
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+
+  # Disable the GNOME3/GDM auto-suspend feature that cannot be disabled in GUI!
+  # If no user is logged in, the machine will power down after 20 minutes.
+  systemd.targets.sleep.enable = false;
+  systemd.targets.suspend.enable = false;
+  systemd.targets.hibernate.enable = false;
+  systemd.targets.hybrid-sleep.enable = false;
+
+  nix.gc.automatic = true;
+  nix.settings.auto-optimise-store = true;
+  
+  boot.loader.systemd-boot.configurationLimit = 2;  
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -50,7 +62,7 @@
 
   # Configure keymap in X11
   services.xserver.xkb = {
-    layout = "gb";
+    layout = "au";
     variant = "";
   };
 
@@ -80,23 +92,37 @@
   users.users.sid = {
     isNormalUser = true;
     description = "sid";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker"];
     packages = with pkgs; [
     #  thunderbird
     ];
     uid = 1000;
   };
 
+  programs.zsh.enable = true;
+  users.users.sid.shell = pkgs.zsh;
+  
   # Install firefox.
   programs.firefox.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  virtualisation.docker.enable = true;
+  virtualisation.docker.autoPrune.enable = true;
+  #virtualisation.docker.rootless = {
+    #enable = true;
+    #setSocketVariable = true; # sets DOCKER_HOST for your sessions
+  #};
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+   jq
+   lazydocker   
+   git
+   nodejs
    wget
    pkgs.jellyfin
    pkgs.jellyfin-web
@@ -119,6 +145,8 @@
     ];
    })
   ];
+
+  environment.shellAliases.lz = "lazydocker";
 
   #services.jellyfin = {
     #enable = true;
@@ -149,23 +177,23 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  #services.samba = {
-    #enable = true;
-    #openFirewall = true;
-    #settings = {
-      #global = {
-        #"workgroup" = "WORKGROUP";
-        #"server string" = "smbnix";
-        #"netbios name" = "smbnix";
-        #"security" = "user";
+  services.samba = {
+    enable = true;
+    openFirewall = true;
+    settings = {
+      global = {
+        "workgroup" = "WORKGROUP";
+        "server string" = "smbnix";
+        "netbios name" = "smbnix";
+        "security" = "user";
         #"use sendfile" = "yes";
         #"max protocol" = "smb2";
         # note: localhost is the ipv6 localhost ::1
-        #"hosts allow" = "192.168.0. 127.0.0.1 localhost";
-        #"hosts deny" = "0.0.0.0/0";
-        #"guest account" = "nobody";
-        #"map to guest" = "bad user";
-      #};
+        "hosts allow" = "192.168.0. 127.0.0.1 localhost";
+        "hosts deny" = "0.0.0.0/0";
+        "guest account" = "nobody";
+        "map to guest" = "bad user";
+      };
       #"public" = {
         #"path" = "/mnt/Shares/Public";
         #"browseable" = "yes";
@@ -176,23 +204,23 @@
         #"force user" = "username";
         #"force group" = "groupname";
       #};
-      #"private" = {
-        #"path" = "/media/storage/Stuff/VR";
-        #"browseable" = "yes";
-        #"read only" = "no";
-        #"guest ok" = "no";
-        #"create mask" = "0644";
-        #"directory mask" = "0755";
-        #"force user" = "sid";
-        #"force group" = "groupname";
-      #};
-    #};
-  #};
+      # "private" = {
+      #   "path" = "/media/storage/Stuff/VR";
+      #   "browseable" = "yes";
+      #   "read only" = "no";
+      #   "guest ok" = "no";
+      #   "create mask" = "0644";
+      #   "directory mask" = "0755";
+      #   "force user" = "sid";
+      #   #"force group" = "groupname";
+      # };
+    };
+  };
 
-  #services.samba-wsdd = {
-    #enable = true;
-    #openFirewall = true;
-  #};
+  services.samba-wsdd = {
+    enable = true;
+    openFirewall = true;
+  };
 
   networking.firewall.enable = true;
   networking.firewall.allowPing = true;
