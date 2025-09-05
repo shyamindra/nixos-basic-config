@@ -144,6 +144,7 @@
       }
     ];
    })
+   polkit_gnome
   ];
 
   environment.shellAliases.lz = "lazydocker";
@@ -186,33 +187,33 @@
         "server string" = "smbnix";
         "netbios name" = "smbnix";
         "security" = "user";
-        #"use sendfile" = "yes";
-        #"max protocol" = "smb2";
+        #\"use sendfile\" = \"yes\";
+        #\"max protocol\" = \"smb2\";
         # note: localhost is the ipv6 localhost ::1
         "hosts allow" = "192.168.0. 127.0.0.1 localhost";
         "hosts deny" = "0.0.0.0/0";
         "guest account" = "nobody";
         "map to guest" = "bad user";
       };
-      #"public" = {
-        #"path" = "/mnt/Shares/Public";
-        #"browseable" = "yes";
-        #"read only" = "no";
-        #"guest ok" = "yes";
-        #"create mask" = "0644";
-        #"directory mask" = "0755";
-        #"force user" = "username";
-        #"force group" = "groupname";
+      #\"public\" = {
+        #\"path\" = "/mnt/Shares/Public";
+        #\"browseable\" = "yes";
+        #\"read only\" = "no";
+        #\"guest ok\" = "yes";
+        #\"create mask\" = "0644";
+        #\"directory mask\" = "0755";
+        #\"force user\" = "username";
+        #\"force group\" = "groupname";
       #};
-      # "private" = {
-      #   "path" = "/media/storage/Stuff/VR";
-      #   "browseable" = "yes";
-      #   "read only" = "no";
-      #   "guest ok" = "no";
-      #   "create mask" = "0644";
-      #   "directory mask" = "0755";
-      #   "force user" = "sid";
-      #   #"force group" = "groupname";
+      # \"private\" = {
+      #   \"path\" = "/media/storage/Stuff/VR";
+      #   \"browseable\" = "yes";
+      #   \"read only\" = "no";
+      #   \"guest ok\" = "no";
+      #   \"create mask\" = "0644";
+      #   \"directory mask\" = "0755";
+      #   \"force user\" = "sid";
+      #   #\"force group\" = "groupname";
       # };
     };
   };
@@ -232,5 +233,21 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.11"; # Did you read the comment?
+
+  security.polkit.enable = true;
+
+  systemd.user.services.polkit-gnome-authentication-agent-1 = {
+    description = "polkit-gnome-authentication-agent-1";
+    wantedBy = [ "graphical-session.target" ];
+    wants = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
+    };
+  };
 
 }
